@@ -1,4 +1,4 @@
-package org.deffer.logging.server;
+package org.deffer.logging.utils;
 
 
 import com.fasterxml.jackson.annotation.JsonInclude;

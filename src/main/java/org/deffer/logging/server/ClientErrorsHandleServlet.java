@@ -2,6 +2,7 @@ package org.deffer.logging.server;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
+import org.deffer.logging.utils.JacksonHelper;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;
@@ -12,7 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
 
-public class MainServlet extends HttpServlet {
+public class ClientErrorsHandleServlet extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 

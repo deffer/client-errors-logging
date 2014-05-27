@@ -5,4 +5,14 @@
 <web-app>
 	<display-name>Client Errors Logging</display-name>
 
+	<servlet>
+		<servlet-name>jslogreportservlet</servlet-name>
+		<servlet-class>org.deffer.logging.server.ClientErrorsHandleServlet</servlet-class>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>jslogreportservlet</servlet-name>
+		<url-pattern>/reportjserror/log</url-pattern>
+	</servlet-mapping>
+
 </web-app>
