@@ -123,12 +123,21 @@
 			xhr.setRequestHeader('Content-Type', 'text/plain;charset=UTF-8');
 
 			xhr.send(body);
+			xhr.onreadystatechange=function(){
+				if (xhr.readyState==4 && xhr.status==404){
+					unableToReachEndpointErrorsCount ++;
+				}
+			}
 		}
 		return true;
 	};
 
 	var sendError = function(url, body){
-		$.post(url, body);
+		$.post(url, body).error(function(obj){
+			if (obj.status == 404){
+				unableToReachEndpointErrorsCount ++;
+			}
+		});
 	};
 
 	var generateErrorString = function(message, file, line, column, errorObj){
@@ -138,7 +147,8 @@
 	};
 
 
-	var defaultscripturl = '/clientrerrorlogger/log';
+	var defaultscripturl = '/clienterrorlogger/log';
+	var unableToReachEndpointErrorsCount = 0;
 	var scripturl = null;
 
 	var getUrl = function(){
@@ -157,13 +167,25 @@
 	};
 
 	window.onerror = function (message, file, line, column, errorObj){
-		consoleLogError(message, file, line, column, errorObj);
-		var body = generateErrorString(message, file, line, column, errorObj);
+		if (devMode) consoleLogError(message, file, line, column, errorObj);
 
-		if (typeof jQuery == 'undefined'){
-			sendErrorNative(getUrl(), body);
-		}else{
-			sendError(getUrl(), body);
+		// check if we able to reach server using current url
+		var url = getUrl();
+		if (url == defaultscripturl && unableToReachEndpointErrorsCount>5){
+			return;
+		}
+
+		var body = generateErrorString(message, file, line, column, errorObj);
+		try{
+			sendErrorNative(url, body);
+			/*if (typeof jQuery == 'undefined'){
+				sendErrorNative(url, body);
+			}else{
+				sendError(url, body);
+			} */
+		}catch (e){
+			console.log(e);
+			unableToReachEndpointErrorsCount++;
 		}
 	};
 
@@ -181,7 +203,7 @@ OOO.sendError = function (){
 	}catch (e){
 		if (window.XMLHttpRequest) {
 			var xhr = new XMLHttpRequest();
-			xhr.open('POST', '/reportjserror/log');
+			xhr.open('POST', '/clienterrorlogger/log');
 			xhr.setRequestHeader('Content-Type', 'text/plain;charset=UTF-8');
 			var bdy = JSON.stringify({message: e.message, file:"unknown", line:0, column:0, errorObj: e.stack});
 			xhr.send(bdy);

@@ -12,7 +12,7 @@
 
 	<servlet-mapping>
 		<servlet-name>ClientErrorLoggingServlet</servlet-name>
-		<url-pattern>/clientrerrorlogger/log</url-pattern>
+		<url-pattern>/clienterrorlogger/log</url-pattern>
 	</servlet-mapping>
 
 </web-fragment>
