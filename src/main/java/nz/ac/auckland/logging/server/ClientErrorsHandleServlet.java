@@ -1,8 +1,8 @@
 package nz.ac.auckland.logging.server;
 
+import nz.ac.auckland.util.JacksonHelper;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
-import org.deffer.logging.utils.JacksonHelper;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
