@@ -138,7 +138,7 @@
 	};
 
 
-	var scripturl = '/reportjserror/log';
+	var scripturl = '/clientrerrorlogger/log';
 
 	window.onerror = function (message, file, line, column, errorObj){
 		consoleLogError(message, file, line, column, errorObj);
