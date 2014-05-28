@@ -45,7 +45,7 @@
 
 
 	/*
-	 * Fake JSON for when we don't have jquery, and JSON is not supported. Some code is taken from json2.js
+	 * Fake JSON for when JSON is not supported. Some code is taken from json2.js
 	 * We only need to fully supports strings and numbers, cause that's all we need for logging js errors.
 	 */
 	var escapable = /[\\\"\x00-\x1f\x7f-\x9f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g;
@@ -116,25 +116,39 @@
 	/*
 	 * Sends error to server using native XMLHttpRequest (for when jquery is not available)
 	 */
-	var sendErrorNative = function(url, message, file, line, column, errorObj){
+	var sendErrorNative = function(url, body){
 		if (window.XMLHttpRequest) {
 			var xhr = new XMLHttpRequest();
 			xhr.open('POST', url);
 			xhr.setRequestHeader('Content-Type', 'text/plain;charset=UTF-8');
-			var stack = null;
-			if (errorObj) stack = errorObj.stack;
-			var body = (window.JSON || JSON).stringify({message: message, file:file, line:line?line:0, column:column?column:0, errorObj:stack});
 
 			xhr.send(body);
 		}
 		return true;
 	};
 
+	var sendError = function(url, body){
+		$.post(url, body);
+	};
+
+	var generateErrorString = function(message, file, line, column, errorObj){
+		var stack = null;
+		if (errorObj) stack = errorObj.stack;
+		return (window.JSON || JSON).stringify({message: message, file:file, line:line?line:0, column:column?column:0, errorObj:stack});
+	};
+
+
 	var scripturl = '/reportjserror/log';
 
 	window.onerror = function (message, file, line, column, errorObj){
 		consoleLogError(message, file, line, column, errorObj);
-		sendErrorNative(scripturl, message, file, line, column, errorObj);
+		var body = generateErrorString(message, file, line, column, errorObj);
+
+		if (typeof jQuery == 'undefined'){
+			sendErrorNative(scripturl, body);
+		}else{
+			sendError(scripturl, body);
+		}
 	};
 
 })();

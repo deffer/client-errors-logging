@@ -6,13 +6,13 @@
 	<name>ClientErrorsLoggingServlet</name>
 
 	<servlet>
-		<servlet-name>jslogreportservlet</servlet-name>
+		<servlet-name>ClientErrorLoggingServlet</servlet-name>
 		<servlet-class>org.deffer.logging.server.ClientErrorsHandleServlet</servlet-class>
 	</servlet>
 
 	<servlet-mapping>
-		<servlet-name>jslogreportservlet</servlet-name>
-		<url-pattern>/reportjserror/log</url-pattern>
+		<servlet-name>ClientErrorLoggingServlet</servlet-name>
+		<url-pattern>/clientrerrorlogger/log</url-pattern>
 	</servlet-mapping>
 
 </web-fragment>
