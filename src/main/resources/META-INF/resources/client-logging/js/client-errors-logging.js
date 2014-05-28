@@ -138,16 +138,32 @@
 	};
 
 
-	var scripturl = '/clientrerrorlogger/log';
+	var defaultscripturl = '/clientrerrorlogger/log';
+	var scripturl = null;
+
+	var getUrl = function(){
+		if (scripturl != null){
+			return scripturl;
+		}
+
+		// keep trying
+		if (window.UOA && window.UOA.logging) {
+			scripturl = window.UOA.logging.url;
+			return scripturl;
+		} else {
+			return defaultscripturl;
+		}
+
+	};
 
 	window.onerror = function (message, file, line, column, errorObj){
 		consoleLogError(message, file, line, column, errorObj);
 		var body = generateErrorString(message, file, line, column, errorObj);
 
 		if (typeof jQuery == 'undefined'){
-			sendErrorNative(scripturl, body);
+			sendErrorNative(getUrl(), body);
 		}else{
-			sendError(scripturl, body);
+			sendError(getUrl(), body);
 		}
 	};
 
