@@ -1,4 +1,4 @@
-package org.deffer.logging.server;
+package nz.ac.auckland.logging.server;
 
 /**
  * author: Irina Benediktovich - http://plus.google.com/+IrinaBenediktovich

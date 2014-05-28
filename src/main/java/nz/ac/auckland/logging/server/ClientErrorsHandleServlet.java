@@ -1,10 +1,9 @@
-package org.deffer.logging.server;
+package nz.ac.auckland.logging.server;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.deffer.logging.utils.JacksonHelper;
 
-import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;

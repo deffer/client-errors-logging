@@ -2,7 +2,13 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>org.deffer.logging</groupId>
+	<parent>
+		<groupId>nz.ac.auckland.groupapps.parent</groupId>
+		<artifactId>parent-java-groupapps-central</artifactId>
+		<version>1.3</version>
+	</parent>
+
+	<groupId>nz.ac.auckland.logging</groupId>
 	<artifactId>client-errors-logging</artifactId>
 	<version>1.0-SNAPSHOT</version>
 	<packaging>jar</packaging>
@@ -12,52 +18,20 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<logback.version>1.0.13</logback.version>
-		<slf4j.version>[1.7.5,)</slf4j.version>
 	</properties>
-
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.mortbay.jetty</groupId>
-				<artifactId>jetty-maven-plugin</artifactId>
-
-				<configuration>
-					<scanIntervalSeconds>5</scanIntervalSeconds>
-					<stopKey>foo</stopKey>
-					<stopPort>9999</stopPort>
-					<connectors>
-						<!-- work around file locking on windows -->
-						<connector implementation="org.eclipse.jetty.server.bio.SocketConnector">
-							<port>8080</port><!-- this connector defaults to 1300 for some reason -->
-						</connector>
-					</connectors>
-					<!--webDefaultXml>src/test/resources/webdefault.xml</webDefaultXml-->
-					<!--scanTargets>
-						<scanTarget>src/main/webapp</scanTarget>
-					</scanTargets-->
-				</configuration>
-			</plugin>
-			<plugin>
-				<artifactId>maven-compiler-plugin</artifactId>
-				<configuration>
-					<source>1.6</source>
-					<target>1.6</target>
-				</configuration>
-			</plugin>
-		</plugins>
-	</build>
 
 	<dependencies>
 		<dependency>
-			<groupId>org.slf4j</groupId>
-			<artifactId>slf4j-api</artifactId>
-			<version>${slf4j.version}</version>
+			<groupId>nz.ac.auckland.composite</groupId>
+			<artifactId>composite-logging-deploy</artifactId>
+			<version>[3.4,4)</version>
+			<scope>provided</scope>
 		</dependency>
+
 		<dependency>
-			<groupId>com.fasterxml.jackson.core</groupId>
-			<artifactId>jackson-databind</artifactId>
-			<version>[2,3)</version>
+			<groupId>nz.ac.auckland.common</groupId>
+			<artifactId>common-jackson</artifactId>
+			<version>[1.6,)</version>
 		</dependency>
 		<dependency>
 			<groupId>commons-io</groupId>
@@ -69,28 +43,17 @@
 			<artifactId>commons-lang</artifactId>
 			<version>[2,3)</version>
 		</dependency>
+
 		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>servlet-api</artifactId>
-			<version>[2,3)</version>
-			<scope>provided</scope>
+			<groupId>nz.ac.auckland.composite</groupId>
+			<artifactId>composite-servlet</artifactId>
+			<version>[1.2,)</version>
 		</dependency>
+
 		<dependency>
-			<groupId>ch.qos.logback</groupId>
-			<artifactId>logback-core</artifactId>
-			<version>[${logback.version}]</version>
-			<scope>runtime</scope>
-		</dependency>
-		<dependency>
-			<groupId>ch.qos.logback</groupId>
-			<artifactId>logback-classic</artifactId>
-			<version>[${logback.version}]</version>
-			<scope>runtime</scope>
-		</dependency>
-		<dependency>
-			<groupId>junit</groupId>
-			<artifactId>junit</artifactId>
-			<version>[4,5)</version>
+			<groupId>nz.ac.auckland.composite</groupId>
+			<artifactId>composite-spring-test</artifactId>
+			<version>[5.3,)</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

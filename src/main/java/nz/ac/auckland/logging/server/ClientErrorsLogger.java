@@ -1,4 +1,4 @@
-package org.deffer.logging.server;
+package nz.ac.auckland.logging.server;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -7,7 +7,7 @@
 
 	<servlet>
 		<servlet-name>ClientErrorLoggingServlet</servlet-name>
-		<servlet-class>org.deffer.logging.server.ClientErrorsHandleServlet</servlet-class>
+		<servlet-class>nz.ac.auckland.logging.server.ClientErrorsHandleServlet</servlet-class>
 	</servlet>
 
 	<servlet-mapping>
