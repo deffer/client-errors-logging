@@ -22,7 +22,8 @@ public class ClientErrorsHandleServlet extends HttpServlet {
 	@Override
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
-		errorsLogger = new ClientErrorsLogger();
+		if (errorsLogger == null)
+			errorsLogger = new SmartClientErrorsLogger();
 		//config.getServletContext();
 	}
 
@@ -42,7 +43,7 @@ public class ClientErrorsHandleServlet extends HttpServlet {
 	}
 
 	/**
-	 * In case we want to replace logger with own implementation
+	 * In case we want to replace logger dynamically
 	 * @param logger other implementation of a logger
 	 */
 	public static void setClientErrorsLogger(ClientErrorsLogger logger){

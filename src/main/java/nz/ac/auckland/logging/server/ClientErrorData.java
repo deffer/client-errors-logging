@@ -13,10 +13,15 @@ public class ClientErrorData {
 	public String errorObj;
 
 
+
+	public String toString(){
+		return str(message)+str(file)+str(line)+str(column)+str(errorObj);
+	}
+
 	/**
 	 * The rest is probably not needed, will see later
 	 */
-
+	@Override
 	public boolean equals(Object obj){
 		if (this == obj)
 			return true;
@@ -26,9 +31,29 @@ public class ClientErrorData {
 
 		ClientErrorData other = (ClientErrorData)obj;
 
-		return eq(this.message, other.message)
+		return this.toString().equals(obj.toString());
+		/*return eq(this.message, other.message)
 				&& eq(this.file, other.file) && eq(this.line, other.line) && eq(this.column, other.column)
-				&& eq(this.errorObj, other.errorObj);
+				&& eq(this.errorObj, other.errorObj);*/
+	}
+
+	@Override
+	public int hashCode(){
+		return toString().hashCode();
+	}
+
+	private String str(String s){
+		if (s == null)
+			return "";
+		else
+			return s.trim();
+	}
+
+	private String str(Long l){
+		if (l == null)
+			return "0";
+		else
+			return l.toString();
 	}
 
 	private boolean eq(String s1, String s2){
