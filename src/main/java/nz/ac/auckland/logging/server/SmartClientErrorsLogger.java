@@ -29,8 +29,13 @@ public class SmartClientErrorsLogger implements ClientErrorsLogger{
 	public SmartClientErrorsLogger(int expiration, int logCacheSize, Ticker ticker){
 		super();
 		System.out.println("Creating cache with " + expiration + ":" + logCacheSize);
+
+		if (ticker == null)
+			ticker = Ticker.systemTicker();
+
 		cache = CacheBuilder.newBuilder()
-				.concurrencyLevel(2)
+				.concurrencyLevel(1)
+				.ticker(ticker)
 				.expireAfterWrite(expiration, TimeUnit.SECONDS)
 				.maximumSize(logCacheSize)
 				.removalListener(new RemovalListener<ClientErrorData, ValueWrapper>() {
@@ -49,8 +54,9 @@ public class SmartClientErrorsLogger implements ClientErrorsLogger{
 			@Override
 			public void run() {
 				cache.cleanUp();
+				System.out.println("Cleaning up");
 			}
-		}, 0, expiration / 2, TimeUnit.SECONDS);
+		}, 0, 2, TimeUnit.SECONDS);
 	}
 
 	public void logClientError(ClientErrorData errorData){

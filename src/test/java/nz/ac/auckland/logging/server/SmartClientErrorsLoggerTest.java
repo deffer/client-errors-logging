@@ -62,23 +62,49 @@ public class SmartClientErrorsLoggerTest {
 
 	}
 
+	public static class Wrapper {
+		boolean start = false;
+		long faked = 0;
+		long lastRealValue = 0;
+		long lastFakedValue = 0;
+	}
+
 	@Test
 	public void testCacheExpiration(){
-		SmartClient logger = new SmartClient(2, 15, null);
+		final long delay = 16;
+		final Wrapper flagHolder = new Wrapper();
+		SmartClient logger = new SmartClient((int)delay, 15, new Ticker() {
+			@Override
+			public long read() {
+				if (flagHolder.start){
+					flagHolder.faked ++;
+					flagHolder.lastFakedValue = System.nanoTime() + (delay+1l)*1000l*1000000l;
+					return flagHolder.lastFakedValue;
+				}else{
+					flagHolder.lastRealValue = System.nanoTime();
+					return flagHolder.lastRealValue;
+				}
+			}
+		});
 
 		logger.logClientError(generateErrorA());
 		logger.logClientError(generateErrorA());
 		logger.logClientError(generateErrorA());
 		logger.logClientError(generateErrorA());
 
-		// TODO use ticker
+		flagHolder.start = true;
+		logger.cache.cleanUp();
+
 		try {
-			// wait for clean up to kick in
-			Thread.sleep(2100);
+			// wait for clean up to finish
+			Thread.sleep(100);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		System.out.println(logger.calls.size());
+
+		System.out.println(logger.cache.getIfPresent(generateErrorA()));
+
+		System.out.println(logger.calls.size()+", faked: "+flagHolder.faked+", values: "+flagHolder.lastRealValue+" and "+flagHolder.lastFakedValue+" ("+(flagHolder.lastFakedValue-flagHolder.lastRealValue)+")");
 		assert logger.calls.size()>=1;
 
 	}
@@ -106,7 +132,7 @@ public class SmartClientErrorsLoggerTest {
 		List calls = new ArrayList();
 
 		public SmartClient(int expiration, int logCacheSize, Ticker ticker){
-			super(expiration, logCacheSize, null);
+			super(expiration, logCacheSize, ticker);
 		}
 
 		@Override
