@@ -11,6 +11,9 @@ import java.util.List;
 public class SmartClientErrorsLoggerTest {
 
 
+	/**
+	 * Make sure messgae object can be used as a key in cache
+	 */
 	@Test
 	public void testCacheKey(){
 		assert generateErrorA().equals(generateErrorA());
@@ -23,6 +26,9 @@ public class SmartClientErrorsLoggerTest {
 		assert testKeys.size() == 1;
 	}
 
+	/**
+	 * Make sure same errors are 'merged' into one (TODO and counter is updated)
+	 */
 	@Test
 	public void testGrouping(){
 
@@ -45,6 +51,9 @@ public class SmartClientErrorsLoggerTest {
 
 	}
 
+	/**
+	 * Make sure it starts logging errors as soon as it reaches maximum size)
+	 */
 	@Test
 	public void testCacheMaximumSize(){
 		SmartClient logger = new SmartClient(20, 5, null);
@@ -62,13 +71,10 @@ public class SmartClientErrorsLoggerTest {
 
 	}
 
-	public static class Wrapper {
-		boolean start = false;
-		long faked = 0;
-		long lastRealValue = 0;
-		long lastFakedValue = 0;
-	}
 
+	/**
+	 * Make sure it logs all errors as soon theit time expires
+	 */
 	@Test
 	public void testCacheExpiration(){
 		final long delay = 16;
@@ -76,14 +82,11 @@ public class SmartClientErrorsLoggerTest {
 		SmartClient logger = new SmartClient((int)delay, 15, new Ticker() {
 			@Override
 			public long read() {
-				if (flagHolder.start){
-					flagHolder.faked ++;
-					flagHolder.lastFakedValue = System.nanoTime() + (delay+1l)*1000l*1000000l;
-					return flagHolder.lastFakedValue;
-				}else{
-					flagHolder.lastRealValue = System.nanoTime();
-					return flagHolder.lastRealValue;
-				}
+			if (flagHolder.start){
+				return System.nanoTime() + (delay+1l)*1000l*1000000l;
+			}else{
+				return System.nanoTime();
+			}
 			}
 		});
 
@@ -102,14 +105,31 @@ public class SmartClientErrorsLoggerTest {
 			e.printStackTrace();
 		}
 
-		System.out.println(logger.cache.getIfPresent(generateErrorA()));
-
-		System.out.println(logger.calls.size()+", faked: "+flagHolder.faked+", values: "+flagHolder.lastRealValue+" and "+flagHolder.lastFakedValue+" ("+(flagHolder.lastFakedValue-flagHolder.lastRealValue)+")");
 		assert logger.calls.size()>=1;
-
 	}
 
+	/**
+	 * To signal ticker to start showing 'later' time
+	 */
+	public static class Wrapper {
+		boolean start = false;
+	}
 
+	/**
+	 * Capture 'writes' to underlying logger
+	 */
+	public static class SmartClient extends SmartClientErrorsLogger{
+		List calls = new ArrayList();
+
+		public SmartClient(int expiration, int logCacheSize, Ticker ticker){
+			super(expiration, logCacheSize, ticker);
+		}
+
+		@Override
+		public void writeClientError(ClientErrorData errorData, int count){
+			calls.add(new Object[]{errorData, count});
+		}
+	}
 
 	private ClientErrorData generateErrorA(){
 		return generateError("a");
@@ -128,16 +148,4 @@ public class SmartClientErrorsLoggerTest {
 		return result;
 	}
 
-	public static class SmartClient extends SmartClientErrorsLogger{
-		List calls = new ArrayList();
-
-		public SmartClient(int expiration, int logCacheSize, Ticker ticker){
-			super(expiration, logCacheSize, ticker);
-		}
-
-		@Override
-		public void writeClientError(ClientErrorData errorData, int count){
-			calls.add(new Object[]{errorData, count});
-		}
-	}
 }

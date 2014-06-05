@@ -169,7 +169,7 @@
 	window.onerror = function (message, file, line, column, errorObj){
 		if (devMode) consoleLogError(message, file, line, column, errorObj);
 
-		// check if we able to reach server using current url
+		// check if we are able to reach server using current url
 		var url = getUrl();
 		if (url == defaultscripturl && unableToReachEndpointErrorsCount>5){
 			return;
@@ -177,12 +177,11 @@
 
 		var body = generateErrorString(message, file, line, column, errorObj);
 		try{
-			sendErrorNative(url, body);
-			/*if (typeof jQuery == 'undefined'){
+			if (typeof jQuery == 'undefined'){
 				sendErrorNative(url, body);
 			}else{
 				sendError(url, body);
-			} */
+			}
 		}catch (e){
 			console.log(e);
 			unableToReachEndpointErrorsCount++;
