@@ -1,15 +1,18 @@
 (function () {
 
+	/* ---------------------------------------------------------------
+	 * Some helper functions here
+	 * --------------------------------------------------------------- */
 	var isIE = function(){ // usage: if (isIE() && isIE()<9)
 		var myNav = navigator.userAgent.toLowerCase();
 		return (myNav.indexOf('msie') != -1) ? parseInt(myNav.split('msie')[1]) : false;
 	};
 
-	/*
+	/* ---------------------------------------------------------------
 	 * Set up console if browser doesnt support it
 	 * (taken from twitter's source code)
+	 * ---------------------------------------------------------------
 	 */
-
 	var noop = function () {};
 	var methods = [
 		'assert', 'clear', 'count', 'debug', 'dir', 'dirxml', 'error',
@@ -18,7 +21,7 @@
 		'timeStamp', 'trace', 'warn'
 	];
 	var length = methods.length;
-	var console = (window.console = window.console || {}); // may be shouldnt override windows console, someone may bring better implementation
+	var console = (window.console = window.console || {});
 
 	var method;
 	while (length--) {
@@ -30,10 +33,11 @@
 		}
 	}
 
-	/*
+	/* ---------------------------------------------------------------
 	 * In DEV mode, show IE8- console logs on the page.
+	 * ---------------------------------------------------------------
 	 */
-	var devMode = true;
+	var devMode = false;
 	if (devMode && isIE() && isIE()<9){
 		console['log'] = function(message){
 			var errorbox = document.createElement('div');
@@ -44,9 +48,10 @@
 	}
 
 
-	/*
+	/* ---------------------------------------------------------------
 	 * Fake JSON for when JSON is not supported. Some code is taken from json2.js
 	 * We only need to fully supports strings and numbers, cause that's all we need for logging js errors.
+	 * ---------------------------------------------------------------
 	 */
 	var escapable = /[\\\"\x00-\x1f\x7f-\x9f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g;
 	var meta = {    // table of character substitutions
@@ -96,10 +101,11 @@
 		}
 	};
 
-	/*
-	 * Functions here
-	 */
 
+	/* ---------------------------------------------------------------
+	 * Actual code start here
+	 * ---------------------------------------------------------------
+	 */
 	var consoleLogError = function(message, file, line, column, errorObj) {
 		var msg = message;
 		if (file || line || column) {
@@ -123,12 +129,21 @@
 			xhr.setRequestHeader('Content-Type', 'text/plain;charset=UTF-8');
 
 			xhr.send(body);
+			xhr.onreadystatechange=function(){
+				if (xhr.readyState==4 && xhr.status==404){
+					unableToReachEndpointErrorsCount ++;
+				}
+			}
 		}
 		return true;
 	};
 
 	var sendError = function(url, body){
-		$.post(url, body);
+		$.post(url, body).error(function(obj){
+			if (obj.status == 404){
+				unableToReachEndpointErrorsCount ++;
+			}
+		});
 	};
 
 	var generateErrorString = function(message, file, line, column, errorObj){
@@ -138,37 +153,45 @@
 	};
 
 
-	var scripturl = '/reportjserror/log';
+	var defaultscripturl = '/clienterrorlogger/log';
+	var unableToReachEndpointErrorsCount = 0;
+	var scripturl = null;
+
+	var getUrl = function(){
+		if (scripturl != null){
+			return scripturl;
+		}
+
+		// keep trying
+		if (window.UOA && window.UOA.logging) {
+			scripturl = window.UOA.logging.url;
+			return scripturl;
+		} else {
+			return defaultscripturl;
+		}
+
+	};
 
 	window.onerror = function (message, file, line, column, errorObj){
-		consoleLogError(message, file, line, column, errorObj);
-		var body = generateErrorString(message, file, line, column, errorObj);
+		if (devMode) consoleLogError(message, file, line, column, errorObj);
 
-		if (typeof jQuery == 'undefined'){
-			sendErrorNative(scripturl, body);
-		}else{
-			sendError(scripturl, body);
+		// check if we are able to reach server using current url
+		var url = getUrl();
+		if (url == defaultscripturl && unableToReachEndpointErrorsCount>5){
+			return;
+		}
+
+		var body = generateErrorString(message, file, line, column, errorObj);
+		try{
+			if (typeof jQuery == 'undefined'){
+				sendErrorNative(url, body);
+			}else{
+				sendError(url, body);
+			}
+		}catch (e){
+			console.log(e);
+			unableToReachEndpointErrorsCount++;
 		}
 	};
 
 })();
-
-var OOO = OOO || {};
-OOO.makeError = function () {
-	var a;
-	a.u = "5";
-};
-
-OOO.sendError = function (){
-	try {
-		OOO.makeError();
-	}catch (e){
-		if (window.XMLHttpRequest) {
-			var xhr = new XMLHttpRequest();
-			xhr.open('POST', '/reportjserror/log');
-			xhr.setRequestHeader('Content-Type', 'text/plain;charset=UTF-8');
-			var bdy = JSON.stringify({message: e.message, file:"unknown", line:0, column:0, errorObj: e.stack});
-			xhr.send(bdy);
-		}
-	}
-};
