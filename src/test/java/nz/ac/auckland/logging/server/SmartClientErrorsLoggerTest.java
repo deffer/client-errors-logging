@@ -12,7 +12,7 @@ public class SmartClientErrorsLoggerTest {
 
 
 	/**
-	 * Make sure messgae object can be used as a key in cache
+	 * Make sure message object can be used as a key in cache
 	 */
 	@Test
 	public void testCacheKey(){
@@ -27,7 +27,7 @@ public class SmartClientErrorsLoggerTest {
 	}
 
 	/**
-	 * Make sure same errors are 'merged' into one (TODO and counter is updated)
+	 * Make sure same errors are 'merged' into one and counter is updated
 	 */
 	@Test
 	public void testGrouping(){
@@ -48,7 +48,7 @@ public class SmartClientErrorsLoggerTest {
 		}
 		System.out.println(logger.calls.size());
 		assert logger.calls.size()==1;
-
+		assert logger.calls.iterator().next()[1].equals(4);
 	}
 
 	/**
@@ -83,7 +83,7 @@ public class SmartClientErrorsLoggerTest {
 			@Override
 			public long read() {
 			if (flagHolder.start){
-				return System.nanoTime() + (delay+1l)*1000l*1000000l;
+				return System.nanoTime() + (delay+1L)*1000L*1000000L;
 			}else{
 				return System.nanoTime();
 			}
@@ -119,7 +119,7 @@ public class SmartClientErrorsLoggerTest {
 	 * Capture 'writes' to underlying logger
 	 */
 	public static class SmartClient extends SmartClientErrorsLogger{
-		List calls = new ArrayList();
+		List<Object[]> calls = new ArrayList<>();
 
 		public SmartClient(int expiration, int logCacheSize, Ticker ticker){
 			super(expiration, logCacheSize, ticker);

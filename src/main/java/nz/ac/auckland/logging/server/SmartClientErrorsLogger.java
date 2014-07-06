@@ -45,7 +45,6 @@ public class SmartClientErrorsLogger implements ClientErrorsLogger{
 	 */
 	public SmartClientErrorsLogger(int expiration, int logCacheSize, Ticker ticker){
 		super();
-		System.out.println("Creating cache with " + expiration + ":" + logCacheSize);
 
 		if (ticker == null)
 			ticker = Ticker.systemTicker();

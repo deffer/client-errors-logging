@@ -37,7 +37,7 @@ public class ClientErrorsHandleServlet extends HttpServlet {
 	protected void doPost(HttpServletRequest req, HttpServletResponse resp)throws ServletException, IOException {
 		List<String> lines = IOUtils.readLines(req.getInputStream());
 		String body = StringUtils.join(lines, " ");
-		System.out.println(body);
+
 		try {
 			ClientErrorData data = JacksonHelper.deserialize(body, ClientErrorData.class);
 			errorsLogger.logClientError(data);
